@@ -1,0 +1,39 @@
+{
+  "name": "upm.js",
+  "version": "1.0.0",
+  "description": "upm包管理工具",
+  "main": "dist/index.js",
+  "scripts": {
+    "server": "tsc --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/zwmmm/upm.js.git"
+  },
+  "keywords": [
+    "umd",
+    "cdn",
+    "包管理"
+  ],
+  "author": "wayne",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/zwmmm/upm.js/issues"
+  },
+  "homepage": "https://github.com/zwmmm/upm.js#readme",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "commander": "^6.0.0",
+    "compressing": "^1.5.1",
+    "inquirer": "^7.3.3",
+    "progress-stream": "^2.0.0",
+    "qiniu": "^7.3.2",
+    "rimraf": "^3.0.2",
+    "urllib": "^2.36.1"
+  },
+  "devDependencies": {
+    "@types/node": "^14.0.27",
+    "prettier": "^2.0.5",
+    "typescript": "^3.9.7"
+  }
+}
