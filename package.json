@@ -1,6 +1,6 @@
 {
   "name": "upm.js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "upm包管理工具",
   "main": "dist/index.js",
   "bin": {

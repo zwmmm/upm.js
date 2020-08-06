@@ -121,7 +121,7 @@ export default async function (packageName: string) {
             choices: Object.keys(fileList),
             loop: false
           }).run()
-          const cdn = await prompt({
+          const { cdn } = await prompt({
             type: 'confirm',
             name: 'cdn',
             message: '是否上传cdn？'
