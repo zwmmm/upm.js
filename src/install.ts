@@ -2,11 +2,12 @@ import inquirer from 'inquirer'
 import print, { Mode } from './print'
 import compressing from 'compressing'
 import path from 'path'
-import urllib from 'urllib'
 import fs from 'fs'
 import qiniu from 'qiniu'
 import { getConfig, IConfig } from './utils'
 import rimraf from 'rimraf'
+import request from 'request'
+import ProgressBar from 'progress'
 
 const npmRegistryURL = 'https://registry.npmjs.org'
 
@@ -89,58 +90,68 @@ export default async function (packageName: string) {
     const name = encodePackageName(packageName)
     const infoURL = `${npmRegistryURL}/${name}`
     print(`Fetching package info for ${packageName} from ${infoURL}`)
-    const res = await urllib.request(infoURL, {
-      timeout: [100000, 100000],
-      dataType: 'json'
-    })
-    if (res.status !== 200) {
-      print('fetch error', Mode.Error)
-      return
-    }
-    const version = Object.keys(res.data.versions).pop()
-    const tarballName = isScopedPackageName(packageName)
-      ? packageName.split('/')[1]
-      : packageName
-    const tarballURL = `${npmRegistryURL}/${packageName}/-/${tarballName}-${version}.tgz`
-    const packageInfo = await urllib.request(tarballURL, {
-      streaming: true,
-      followRedirect: true
-    })
-    if (packageInfo.status !== 200) {
-      print('fetch error', Mode.Error)
-      return
-    }
-    // @ts-ignore
-    await compressing.tgz.uncompress(packageInfo.res, resolvePath('../'))
-    const fileList = getFiles()
-    const { files, cdn } = await inquirer.prompt([
-      {
-        type: 'checkbox',
-        name: 'files',
-        message: '选择需要下载的文件',
-        choices: fileList.map((item) => item.name),
-        loop: false
-      },
-      {
-        type: 'confirm',
-        name: 'cdn',
-        message: '是否上传cdn？'
-      }
-    ])
-    for await (let name of files) {
-      const pathname = fileList.find((file) => file.name === name).path
-      const filename = path.basename(pathname)
-      fs.copyFileSync(pathname, path.join(process.cwd(), filename))
-      if (cdn) {
-        try {
-          await upoloadCdn(pathname)
-          print(`${filename} 上传成功`)
-        } catch (e) {
-          print(e, Mode.Error)
+    const res = request.get(infoURL)
+    res.on('response', (res) => {
+      const bar = new ProgressBar(
+        '  download [:bar] :rate/bps :percent :etas',
+        {
+          complete: '=',
+          incomplete: ' ',
+          width: 20,
+          total: parseInt(res.headers['content-length'], 10)
         }
-      }
-    }
-    rimraf(resolvePath('../package'), () => {})
+      )
+      let fileChunk = ''
+      res.on('data', (chunk) => {
+        bar.tick(chunk.length)
+        fileChunk += chunk
+      })
+      res.on('end', () => {
+        const res = JSON.parse(fileChunk)
+        const version = Object.keys(res.versions).pop()
+        const tarballName = isScopedPackageName(packageName)
+          ? packageName.split('/')[1]
+          : packageName
+        const tarballURL = `${npmRegistryURL}/${packageName}/-/${tarballName}-${version}.tgz`
+        print('Unpacking...')
+        request(tarballURL, { encoding: null }, async (err, res, body) => {
+          if (err) {
+            console.log(err)
+            return
+          }
+          await compressing.tgz.uncompress(body, resolvePath('../'))
+          const fileList = getFiles()
+          const { files, cdn } = await inquirer.prompt([
+            {
+              type: 'checkbox',
+              name: 'files',
+              message: '选择需要下载的文件',
+              choices: fileList.map((item) => item.name),
+              loop: false
+            },
+            {
+              type: 'confirm',
+              name: 'cdn',
+              message: '是否上传cdn？'
+            }
+          ])
+          for await (let name of files) {
+            const pathname = fileList.find((file) => file.name === name).path
+            const filename = path.basename(pathname)
+            fs.copyFileSync(pathname, path.join(process.cwd(), filename))
+            if (cdn) {
+              try {
+                await upoloadCdn(pathname)
+                print(`${filename} 上传成功`)
+              } catch (e) {
+                print(e, Mode.Error)
+              }
+            }
+          }
+          rimraf(resolvePath('../package'), () => {})
+        })
+      })
+    })
   } catch (e) {
     print(e.message, Mode.Error)
   }
