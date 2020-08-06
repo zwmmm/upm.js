@@ -2,7 +2,7 @@
 
 > 一个方便管理 umd 格式的 cli
 
-![image](http://qed4xvaoy.bkt.clouddn.com/upm.gif)
+<img src="http://qed4xvaoy.bkt.clouddn.com/upm.gif" />
 
 ## 下载
 
