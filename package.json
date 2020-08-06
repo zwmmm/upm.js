@@ -1,6 +1,6 @@
 {
   "name": "upm.js",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "upm包管理工具",
   "main": "dist/index.js",
   "bin": {
@@ -29,7 +29,7 @@
     "chalk": "^4.1.0",
     "commander": "^6.0.0",
     "compressing": "^1.5.1",
-    "inquirer": "^7.3.3",
+    "enquirer": "^2.3.6",
     "progress": "^2.0.3",
     "qiniu": "^7.3.2",
     "request": "^2.88.2",

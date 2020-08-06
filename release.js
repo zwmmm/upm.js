@@ -1,4 +1,4 @@
-const { prompt } = require('inquirer')
+const { prompt } = require('enquirer')
 const chalk = require('chalk')
 const execa = require('execa')
 const semver = require('semver')
@@ -22,7 +22,7 @@ function updateVersions(version) {
 async function main() {
   let targetVersion = ''
   const { release } = await prompt({
-    type: 'list',
+    type: 'select',
     name: 'release',
     message: 'Select release type',
     choices: versionIncrements.map((i) => `${i} (${inc(i)})`).concat(['custom'])
@@ -55,12 +55,11 @@ async function main() {
     return
   }
 
-  step('\nUpdating cross dependencies...')
+  step('\nUpdating Version...')
   updateVersions(targetVersion)
 
   step('\nPublishing packages...')
-  await run('nrm', ['use', 'npm'])
-  await run('npm', ['publish'])
+  await run('npm', ['publish', '--registry=https://registry.npmjs.org/'])
 
   step('\nPushing to GitHub...')
   const { stdout } = await run('git', ['diff'], { stdio: 'pipe' })

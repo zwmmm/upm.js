@@ -1,4 +1,5 @@
-import inquirer from 'inquirer'
+// @ts-ignore
+import { prompt, MultiSelect } from 'enquirer'
 import print, { Mode } from './print'
 import compressing from 'compressing'
 import path from 'path'
@@ -25,13 +26,8 @@ function encodePackageName(packageName) {
     : encodeURIComponent(packageName)
 }
 
-interface file {
-  name: string
-  path: string
-}
-
 function getFiles() {
-  const fileList: Array<file> = []
+  const fileList = {}
   const root = resolvePath('../package')
   const eachDir = (root, parent = '') => {
     const files = fs.readdirSync(root)
@@ -42,10 +38,7 @@ function getFiles() {
         eachDir(filepath, filename)
         return
       }
-      fileList.push({
-        name: filename,
-        path: filepath
-      })
+      fileList[filename] = filepath
     })
   }
   eachDir(root)
@@ -121,22 +114,20 @@ export default async function (packageName: string) {
           }
           await compressing.tgz.uncompress(body, resolvePath('../'))
           const fileList = getFiles()
-          const { files, cdn } = await inquirer.prompt([
-            {
-              type: 'checkbox',
-              name: 'files',
-              message: '选择需要下载的文件',
-              choices: fileList.map((item) => item.name),
-              loop: false
-            },
-            {
-              type: 'confirm',
-              name: 'cdn',
-              message: '是否上传cdn？'
-            }
-          ])
+          const files = await new MultiSelect({
+            name: 'files',
+            message: '选择需要下载的文件',
+            limit: 7,
+            choices: Object.keys(fileList),
+            loop: false
+          }).run()
+          const cdn = await prompt({
+            type: 'confirm',
+            name: 'cdn',
+            message: '是否上传cdn？'
+          })
           for await (let name of files) {
-            const pathname = fileList.find((file) => file.name === name).path
+            const pathname = fileList[name]
             const filename = path.basename(pathname)
             fs.copyFileSync(pathname, path.join(process.cwd(), filename))
             if (cdn) {
