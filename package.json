@@ -8,7 +8,8 @@
   },
   "scripts": {
     "server": "tsc --watch",
-    "release": "node release.js"
+    "release": "node release.js",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s"
   },
   "repository": {
     "type": "git",
@@ -36,8 +37,12 @@
     "rimraf": "^3.0.2"
   },
   "devDependencies": {
+    "@commitlint/cli": "^9.1.1",
+    "@commitlint/config-conventional": "^9.1.1",
     "@types/node": "^14.0.27",
+    "conventional-changelog-cli": "^2.0.34",
     "execa": "^4.0.3",
+    "husky": "^4.2.5",
     "prettier": "^2.0.5",
     "semver": "^7.3.2",
     "typescript": "^3.9.7"
@@ -46,5 +51,15 @@
     "dist",
     "bin",
     "package.json"
-  ]
+  ],
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  }
 }

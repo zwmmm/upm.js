@@ -61,6 +61,9 @@ async function main() {
   step('\nPublishing packages...')
   await run('npm', ['publish', '--registry=https://registry.npmjs.org/'])
 
+  step('\nGenerate changelog...')
+  await run(`yarn`, ['changelog'])
+
   step('\nPushing to GitHub...')
   const { stdout } = await run('git', ['diff'], { stdio: 'pipe' })
   if (stdout) {
