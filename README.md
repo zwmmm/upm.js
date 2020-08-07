@@ -1,7 +1,8 @@
 # upm.js
 
 > 一个方便管理 umd 格式的 cli
-![image](https://user-images.githubusercontent.com/30194521/89526372-364d3400-d81a-11ea-935f-7ff2e29dafe2.png)
+
+<img src="https://github.com/zwmmm/nodejs/blob/master/upm.gif?raw=true" />
 
 ## 下载
 
