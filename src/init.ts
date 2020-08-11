@@ -5,7 +5,7 @@ import path from 'path'
 const USER_HOME = process.env.HOME || process.env.USERPROFILE
 
 export default async function () {
-  const { accessKey, secretKey, bucket } = await prompt([
+  const { accessKey, secretKey, bucket, domain } = await prompt([
     {
       type: 'password',
       name: 'accessKey',
@@ -20,12 +20,18 @@ export default async function () {
       type: 'password',
       name: 'bucket',
       message: `填写bucket`
+    },
+    {
+      type: 'input',
+      name: 'domain',
+      message: `填写域名`
     }
   ])
   const content = [
     `accessKey=${accessKey}`,
     `secretKey=${secretKey}`,
-    `bucket=${bucket}`
+    `bucket=${bucket}`,
+    `domain=${domain}`
   ].join('\n')
   fs.writeFileSync(path.join(USER_HOME, '.upmrc'), content, {})
 }

@@ -45,9 +45,8 @@ function getFiles() {
   return fileList
 }
 
-function upoloadCdn(filepath: string): Promise<any> {
+function upoloadCdn(filepath: string, config: IConfig): Promise<any> {
   return new Promise((resolve, reject) => {
-    const config = getConfig() as IConfig
     if (!config || !config.accessKey || !config.secretKey || !config.bucket) {
       return reject('配置信息不全，请执行 upm init')
     }
@@ -132,8 +131,9 @@ export default async function (packageName: string) {
             fs.copyFileSync(pathname, path.join(process.cwd(), filename))
             if (cdn) {
               try {
-                await upoloadCdn(pathname)
-                print(`${filename} 上传成功`)
+                const config = getConfig() as IConfig
+                await upoloadCdn(pathname, config)
+                print(`${config.domain}/${filename} 上传成功`)
               } catch (e) {
                 print(e, Mode.Error)
               }

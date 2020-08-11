@@ -8,6 +8,7 @@ export interface IConfig {
   accessKey: string
   secretKey: string
   bucket: string
+  domain: string
 }
 
 export function getConfig() {
@@ -18,7 +19,7 @@ export function getConfig() {
     if (key && value) {
       return Object.assign(obj, { [key]: value })
     }
-    return obj
+    return obj as IConfig
   }, {})
 }
 
