@@ -1,6 +1,6 @@
 {
   "name": "upm.js",
-  "version": "0.0.3",
+  "version": "0.0.5",
   "description": "upm包管理工具",
   "main": "dist/index.js",
   "bin": {
@@ -55,7 +55,23 @@
   "commitlint": {
     "extends": [
       "@commitlint/config-conventional"
-    ]
+    ],
+    "rules": {
+      "type-enum": [
+        2,
+        "always",
+        [
+          "fix",
+          "feat",
+          "release",
+          "docs",
+          "style",
+          "test",
+          "revert",
+          "refactor"
+        ]
+      ]
+    }
   },
   "husky": {
     "hooks": {
