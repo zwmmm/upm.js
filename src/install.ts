@@ -4,11 +4,11 @@ import print, { Mode } from './print'
 import compressing from 'compressing'
 import path from 'path'
 import fs from 'fs'
-import qiniu from 'qiniu'
 import { getConfig, IConfig } from './utils'
 import rimraf from 'rimraf'
 import request from 'request'
 import ProgressBar from 'progress'
+import { upoloadCdn } from './upload'
 
 const npmRegistryURL = 'https://registry.npmjs.org'
 
@@ -43,38 +43,6 @@ function getFiles() {
   }
   eachDir(root)
   return fileList
-}
-
-function upoloadCdn(filepath: string, config: IConfig): Promise<any> {
-  return new Promise((resolve, reject) => {
-    if (!config || !config.accessKey || !config.secretKey || !config.bucket) {
-      return reject('配置信息不全，请执行 upm init')
-    }
-    const mac = new qiniu.auth.digest.Mac(config.accessKey, config.secretKey)
-    const uploadConfig = {
-      scope: config.bucket
-    }
-    const putPolicy = new qiniu.rs.PutPolicy(uploadConfig)
-    const uploadToken = putPolicy.uploadToken(mac)
-    const putExtra = new qiniu.form_up.PutExtra()
-    const formUploader = new qiniu.form_up.FormUploader(uploadConfig)
-    formUploader.putFile(
-      uploadToken,
-      path.basename(filepath),
-      filepath,
-      putExtra,
-      (respErr, respBody, respInfo) => {
-        if (respErr) {
-          return reject(respErr)
-        }
-        if (respInfo.statusCode == 200) {
-          resolve(respBody)
-        } else {
-          return reject(respBody)
-        }
-      }
-    )
-  })
 }
 
 export default async function (packageName: string) {
